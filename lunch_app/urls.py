@@ -3,9 +3,9 @@ from . import views
 
 
 urlpatterns = [
-    path('lunches/',views.lunch_list),
-    path('lunches/<int:pk>/',views.lunch_detail),
-    path('random',views.random_lunch),
-    path('ingredients/',views.ingredients_list),
-    path('ingredients/<int:pk>',views.ingredients_detail),
+    path('lunches/',views.LunchList.as_view()),
+    path('lunches/<int:pk>/',views.LunchDetail.as_view()),
+    path('random',views.RandomLunch.as_view()),
+    path('ingredients/',views.IngredientsList.as_view()),
+    path('ingredients/<int:pk>',views.IngredientsDetail.as_view()),
 ]

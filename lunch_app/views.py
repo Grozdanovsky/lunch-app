@@ -1,76 +1,40 @@
-import imp
-from itertools import product
-import re
 from xmlrpc.client import TRANSPORT_ERROR
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from .models import Lunch,Ingredients
 from .serializers import LunchSerializer,IngredientsSerializer
 import random
 
-@api_view(["GET",'POST'])
-def lunch_list(request):
-    if request.method == "GET":
+
+class LunchList(ListCreateAPIView):
         queryset = Lunch.objects.prefetch_related('ingredients').all()
-        serialzier = LunchSerializer(queryset, many=True)
-        return Response(serialzier.data)
-    elif request.method == "POST":
-        serialzier = LunchSerializer(data=request.data)
-        serialzier.is_valid(raise_exception=True)
-        serialzier.save()
-        return Response(serialzier.data, status=status.HTTP_201_CREATED)
+        serializer_class = LunchSerializer
 
+    
+class LunchDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Lunch.objects.prefetch_related('ingredients')
+    serializer_class = LunchSerializer
 
-@api_view(["GET","PUT","DELETE"])
-def lunch_detail(request,pk):
-    lunch = get_object_or_404(Lunch.objects.prefetch_related('ingredients'), pk=pk)
-    if request.method == "GET":
+class RandomLunch(APIView):
+    def get(self,request):
+        queryset = Lunch.objects.prefetch_related('ingredients').all()
+        lunch = random.choice(queryset)
         serializer = LunchSerializer(lunch)
         return Response(serializer.data)
-    elif request.method == "PUT":
-        serializer = LunchSerializer(lunch,data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == "DELETE":
-        lunch.delete()
-        return Response(status= status.HTTP_204_NO_CONTENT)
 
 
-@api_view()
-def random_lunch(request):
-    queryset = Lunch.objects.prefetch_related('ingredients').all()
-    lunch = random.choice(queryset)
-    serializer = LunchSerializer(lunch)
-    return Response(serializer.data)
+class IngredientsList(ListCreateAPIView):
+    queryset = Ingredients.objects.all()
+    serializer_class = IngredientsSerializer
+    
 
-@api_view(["GET","POST"])
-def ingredients_list(request):
-    if request.method == "GET":
-        queryset = Ingredients.objects.all()
-        serialzier = IngredientsSerializer(queryset,many=True)
-        return Response(serialzier.data)
-    elif request.method == "POST":
-        serializer = IngredientsSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status= status.HTTP_201_CREATED)
 
-@api_view(["GET","PUT","DELETE"])
-def ingredients_detail(request,pk):
-    ingredient = get_object_or_404(Ingredients,pk=pk)
-    if request.method == "GET":
-        serializer = IngredientsSerializer(ingredient)
-        return Response(serializer.data)
-    elif request.method == "PUT":
-        serializer = IngredientsSerializer(ingredient, data= request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == "DELETE":
-        ingredient.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class IngredientsDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Ingredients.objects.all()
+    serializer_class = IngredientsSerializer
+
 
