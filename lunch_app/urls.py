@@ -1,11 +1,23 @@
+from xml.etree.ElementInclude import include
+from django.db import router
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 from . import views
 
 
+router = DefaultRouter()
+router.register('lunches', views.LunchViewSet)
+router.register('ingredients',views.IngredientsViewSet)
+
 urlpatterns = [
-    path('lunches/',views.LunchList.as_view()),
-    path('lunches/<int:pk>/',views.LunchDetail.as_view()),
-    path('random',views.RandomLunch.as_view()),
-    path('ingredients/',views.IngredientsList.as_view()),
-    path('ingredients/<int:pk>',views.IngredientsDetail.as_view()),
+    path('random/',views.RandomLunch.as_view())  
 ]
+
+urlpatterns += router.urls
+
+
+
+   
+
+
+
