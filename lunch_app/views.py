@@ -7,8 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import ModelViewSet
-from .models import Lunch,Ingredients
-from .serializers import LunchSerializer,IngredientsSerializer
+from .models import Lunch,Ingredients, Review
+from .serializers import LunchSerializer,IngredientsSerializer, ReviewSerializer
 import random
 import json
 from pprint import pprint
@@ -30,3 +30,14 @@ class IngredientsViewSet(ModelViewSet):
     
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(lunch_id = self.kwargs['lunch_pk'])
+
+
+    def get_serializer_context(self):
+        return {"lunch_id":self.kwargs['lunch_pk']}
